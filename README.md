@@ -15,10 +15,11 @@
 
 ## ✨ 功能特性
 
+- 🎉 **首次配置向导** - 首次使用自动引导配置，无需手动创建配置文件
 - 🚀 **极速翻译** - 命令行一键翻译，无需打开浏览器
 - 🌍 **多语言支持** - 支持多种语言互译
 - 🔐 **安全可靠** - 使用环境变量保护 API 密钥
-- 📋 **便捷复制** - 翻译结果自动复制到剪贴板
+- 📋 **智能复制** - 可选自动复制翻译结果到剪贴板
 - ⚡ **轻量高效** - 基于 Node.js，启动快速
 
 ## 📦 安装
@@ -38,12 +39,44 @@ cd translate-cli
 # 2. 安装依赖
 pnpm install
 
-# 3. 配置环境变量（见下方说明）
-cp .env.example .env
-# 编辑 .env 文件，填入你的 API 密钥
-
-# 4. 全局安装（可选）
+# 3. 首次运行（自动配置）
+node index.js "hello"
+# 或全局安装后使用
 pnpm link
+trans "hello"
+```
+
+### 🎯 首次使用配置
+
+**方式一：自动配置（推荐）**
+
+首次运行时，工具会自动引导你完成配置：
+
+```bash
+$ node index.js "hello"
+
+🎉 欢迎使用有道翻译CLI！首次使用需要配置
+
+📝 请输入你的有道智云应用配置：
+   (在 https://ai.youdao.com/console/ 创建应用获取)
+
+请输入 APP_KEY: your_app_key_here
+请输入 APP_SECRET: your_app_secret_here
+是否自动复制翻译结果到剪贴板？(y/n，默认y): y
+
+✅ 配置完成！现在可以开始使用了
+```
+
+**方式二：手动配置**
+
+如果你更喜欢手动配置，可以：
+
+```bash
+# 复制配置模板
+cp .env.example .env
+
+# 编辑 .env 文件
+nano .env
 ```
 
 ### 🔑 获取 API 密钥
@@ -56,9 +89,12 @@ pnpm link
 ```env
 YOUDAO_APP_KEY=your_app_key_here
 YOUDAO_APP_SECRET=your_app_secret_here
+AUTO_COPY=true
 ```
 
-> ⚠️ **注意**：`.env` 文件已添加到 `.gitignore`，请勿将其提交到版本控制系统
+> ⚠️ **注意**：
+> - `.env` 文件已添加到 `.gitignore`，请勿将其提交到版本控制系统
+> - 首次使用推荐让工具自动生成配置文件
 
 ## 🚀 使用方法
 
@@ -77,27 +113,30 @@ trans "hello world"
 ```bash
 # 英译中（默认行为）
 $ trans "hello world"
+🔄 翻译中...
 ✅ hello world → 
  你好世界
-✅ 已复制到剪贴板
+📋 已复制到剪贴板
 
 # 翻译长句子
 $ trans "The quick brown fox jumps over the lazy dog"
+🔄 翻译中...
 ✅ The quick brown fox jumps over the lazy dog → 
  敏捷的棕色狐狸跳过懒狗
-✅ 已复制到剪贴板
+📋 已复制到剪贴板
 
 # 翻译中文
 $ trans "你好，世界"
+🔄 翻译中...
 ✅ 你好，世界 → 
  Hello, world
-✅ 已复制到剪贴板
+📋 已复制到剪贴板
 
-# 翻译包含特殊字符的文本
+# 禁用自动复制时的输出
 $ trans "What's your name?"
+🔄 翻译中...
 ✅ What's your name? → 
  你叫什么名字？
-✅ 已复制到剪贴板
 ```
 
 ## ⚙️ 配置说明
@@ -106,10 +145,27 @@ $ trans "What's your name?"
 
 在项目根目录的 `.env` 文件中配置：
 
-| 变量名 | 说明 | 是否必填 | 示例 |
-|--------|------|---------|------|
-| `YOUDAO_APP_KEY` | 有道翻译应用 ID | ✅ 必填 | `your_app_key_here` |
-| `YOUDAO_APP_SECRET` | 有道翻译应用密钥 | ✅ 必填 | `your_app_secret_here` |
+| 变量名              | 说明                 | 是否必填 | 默认值 | 示例                   |
+| ------------------- | -------------------- | -------- | ------ | ---------------------- |
+| `YOUDAO_APP_KEY`    | 有道翻译应用 ID      | ✅ 必填   | -      | `your_app_key_here`    |
+| `YOUDAO_APP_SECRET` | 有道翻译应用密钥     | ✅ 必填   | -      | `your_app_secret_here` |
+| `AUTO_COPY`         | 是否自动复制到剪贴板 | ❌ 可选   | `true` | `true` 或 `false`      |
+
+### 修改配置
+
+如需修改配置，可以：
+
+1. **删除 `.env` 文件重新配置**：
+   ```bash
+   rm .env
+   trans "hello"  # 会重新引导配置
+   ```
+
+2. **直接编辑 `.env` 文件**：
+   ```bash
+   nano .env
+   # 修改相应的配置项
+   ```
 
 ## 🛠️ 开发指南
 
@@ -140,6 +196,26 @@ pnpm unlink --global
 ## ❓ 常见问题
 
 <details>
+<summary><b>首次使用如何配置？</b></summary>
+
+直接运行翻译命令，工具会自动引导你完成配置：
+```bash
+trans "hello"
+```
+按提示输入 APP_KEY、APP_SECRET 和是否自动复制即可。
+</details>
+
+<details>
+<summary><b>如何关闭自动复制功能？</b></summary>
+
+编辑 `.env` 文件，将 `AUTO_COPY` 设置为 `false`：
+```bash
+AUTO_COPY=false
+```
+或者删除 `.env` 文件重新配置，在询问时选择 `n`。
+</details>
+
+<details>
 <summary><b>如何检查 API 密钥是否配置正确？</b></summary>
 
 确保 `.env` 文件在项目根目录，且格式正确：
@@ -150,6 +226,7 @@ cat .env
 ```
 YOUDAO_APP_KEY=your_key
 YOUDAO_APP_SECRET=your_secret
+AUTO_COPY=true
 ```
 </details>
 
@@ -160,6 +237,13 @@ YOUDAO_APP_SECRET=your_secret
 2. 确认 API 密钥是否有效
 3. 查看有道智云账户是否有剩余调用次数
 4. 检查输入文本是否包含特殊字符
+5. 尝试删除 `.env` 文件重新配置
+</details>
+
+<details>
+<summary><b>可以在任何目录使用吗？</b></summary>
+
+可以！工具会自动在脚本所在目录查找 `.env` 文件，无论你从哪个目录运行都能正常工作。
 </details>
 
 <details>
@@ -185,6 +269,6 @@ rm -rf translate-cli
 
 **如果这个项目对你有帮助，请给个 ⭐️ Star 支持一下！**
 
-Made with ❤️ by [Your Name]
+Made with ❤️ by Driven
 
 </div>
